@@ -1,0 +1,22 @@
+{
+  "name": "particle_battle",
+  "version": "1.0.0",
+  "description": "for fun?",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luan007/particle_battle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luan007/particle_battle/issues"
+  },
+  "homepage": "https://github.com/luan007/particle_battle#readme",
+  "dependencies": {
+    "expression-sandbox": "^1.1.0"
+  }
+}
