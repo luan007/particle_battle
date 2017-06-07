@@ -17,7 +17,7 @@ then
 
 # Rules
 
-Creatures in this world can sense stuff around in range of *1* pixel away. 
+Creatures in this world sense stuff around within *1* pixel range.
 
 In each turn, all creatures choose to either `move`, `attack`, or `turn`. 
 
