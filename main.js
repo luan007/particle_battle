@@ -1,9 +1,11 @@
 //board:
-var w = 500;
-var h = 500;
-var cw = w * 2;
-var ch = h * 2;
+var w = 400;
+var h = 400;
+var scaler = 4;
+var cw = w * scaler;
+var ch = h * scaler;
 var board = []; //1000 x 800
+var determined = [];
 board.length = w * h;
 var FRIENDLY_FIRE = false;
 
@@ -24,6 +26,10 @@ function getBlock(x, y) {
     return outside(x, y) ? undefined : board[x + y * w];
 }
 
+function getdBlock(x, y) {
+    return outside(x, y) ? undefined : determined[x + y * w];
+}
+
 function pickBlock(x, y) {
     var t = getBlock(x, y);
     if (!t || t.picked || t.dead) return undefined;
@@ -41,7 +47,7 @@ function putBlock(p) {
 var counts = [0, 0];
 for (var x = 0; x < w; x++) {
     for (var y = 0; y < h; y++) {
-        if (Math.random() > 0.99) {
+        if (Math.random() > 0.9) {
             var b = new being();
             b.x = x;
             b.y = y;
@@ -56,41 +62,7 @@ function removeBlock(x, y) {
     return outside(x, y) ? undefined : (board[x + y * w] = undefined);
 }
 
-var update_particle = [function (p) {
-    p.bag.x = p.bag.x || 0;
-    p.bag.y = p.bag.y || 0;
-    p.bag.counter = p.bag.counter || 0;
-    if (p.bag.x == p.x && p.bag.y == p.y && p.bag.counter < 3) {
-        p.bag.counter++;
-        return {
-            turn: DIRECTIONS.RIGHT
-        }
-    } else {
-        p.bag.counter = 0;
-        p.bag.x = p.x;
-        p.bag.y = p.y;
-
-        if (Math.random() > 0.2) {
-            return {
-                move: true
-            }
-        } else {
-            return {
-                attack: true
-            }
-        }
-    }
-}, function (p) {
-    if (Math.random() > 0.5) {
-        return {
-            turn: DIRECTIONS.LEFT
-        }
-    } else {
-        return {
-            attack: true
-        }
-    }
-}]
+var update_particle = [player1, player2]
 
 function apply_movements(b) {
     var state = b.idea;
@@ -160,6 +132,24 @@ function apply_attack(b) {
     }
 }
 
+function dirAdd(d1, d2) {
+    return (d1 + d2) % 4;
+}
+
+
+function dirIndex(vision, dir) {
+    switch (dir) {
+        case DIRECTIONS.RIGHT:
+            return vision[5];
+        case DIRECTIONS.LEFT:
+            return vision[3];
+        case DIRECTIONS.UP:
+            return vision[1];
+        case DIRECTIONS.DOWN:
+            return vision[7];
+    }
+    return undefined;
+}
 
 function update() {
     //main logic
@@ -182,6 +172,24 @@ function update() {
             q.type = p.type;
             q.dead = p.dead;
             q.bag = p.bag;
+            q.vision = [
+                getdBlock(x - 1, y - 1),
+                getdBlock(x, y - 1),
+                getdBlock(x + 1, y - 1),
+
+                getdBlock(x - 1, y),
+                undefined,
+                getdBlock(x + 1, y),
+
+                getdBlock(x - 1, y + 1),
+                getdBlock(x, y + 1),
+                getdBlock(x + 1, y + 1),
+            ];
+
+            q.front = dirIndex(q.vision, q.facing);
+            q.left = dirIndex(q.vision, dirAdd(q.facing, DIRECTIONS.LEFT));
+            q.right = dirIndex(q.vision, dirAdd(q.facing, DIRECTIONS.RIGHT));
+            q.behind = dirIndex(q.vision, dirAdd(q.facing, DIRECTIONS.DOWN));
             Object.freeze(q);
 
             var idea = update_particle[q.type](q) || {};
@@ -192,6 +200,10 @@ function update() {
     }
     for (var i = 0; i < board.length; i++) {
         var b = board[i];
+        determined[i] = undefined;
+        if (b && !b.dead) {
+            determined[i] = b;
+        }
         if (!b) continue;
         b.picked = false;
         apply_attack(b);
@@ -209,17 +221,53 @@ document.body.appendChild(cvs);
 
 //renderer
 function render() {
-    update();
+    for (var i = 0; i < 1; i++) {
+        update();
+    }
 
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.fillStyle = '#000';
+    // ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(0, 0, cw, ch);
     counts = [0, 0];
     for (var i = 0; i < board.length; i++) {
         var b = board[i];
         if (!b) continue;
+        ctx.strokeStyle = b.type == 1 ? "#f00" : '#fff';
         ctx.fillStyle = b.type == 1 ? "#f00" : '#fff';
-        ctx.fillRect(b.x * 2, b.y * 2, 2, 2);
+        ctx.save();
+        ctx.translate(b.x * scaler, b.y * scaler);
+        // ctx.rotate(Math.PI / 4);
+
+        ctx.beginPath();
+        switch (b.facing) {
+            case DIRECTIONS.DOWN:
+                ctx.moveTo(0, scaler);
+                ctx.lineTo(scaler, scaler);
+                break;
+            case DIRECTIONS.LEFT:
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, scaler);
+                break;
+            case DIRECTIONS.RIGHT:
+                ctx.moveTo(scaler, 0);
+                ctx.lineTo(scaler, scaler);
+                break;
+            case DIRECTIONS.UP:
+                ctx.moveTo(0, 0);
+                ctx.lineTo(scaler, 0);
+                break;
+        }
+        ctx.stroke();
+
+        // ctx.beginPath();
+        // ctx.rect(0, 0, scaler, scaler);
+        // ctx.stroke();
+        if (b.idea.attack) {
+            ctx.beginPath();
+            ctx.rect(0, 0, scaler, scaler);
+            ctx.fill();
+        }
+        ctx.restore();
         counts[b.type]++;
     }
     console.log(counts);
