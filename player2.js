@@ -11,8 +11,7 @@ function player22(p) {
 }
 
 
-//crusher
-
+//killing machine
 function player2(p) {
 
     p.bag.idle = p.bag.idle || 0;

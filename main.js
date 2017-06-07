@@ -6,6 +6,9 @@ var cw = w * scaler;
 var ch = h * scaler;
 var board = []; //1000 x 800
 var determined = [];
+
+var deathAnimator = [];
+
 board.length = w * h;
 var FRIENDLY_FIRE = false;
 
@@ -204,6 +207,14 @@ function update() {
         if (b && !b.dead) {
             determined[i] = b;
         }
+        if (b && b.dead) {
+            deathAnimator[i] = {
+                x: b.x,
+                y: b.y,
+                type: b.type,
+                t: 10
+            };
+        }
         if (!b) continue;
         b.picked = false;
         apply_attack(b);
@@ -221,19 +232,55 @@ document.body.appendChild(cvs);
 
 //renderer
 function render() {
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < 3; i++) {
         update();
     }
 
     // ctx.clearRect(0, 0, cw, ch);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    // ctx.globalCompositeOperation = "destination-in";
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.fillRect(0, 0, cw, ch);
     counts = [0, 0];
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+    for (var x = 0; x < w; x += 10) {
+        ctx.beginPath();
+        ctx.moveTo(x * scaler, 0);
+        ctx.lineTo(x * scaler, h * scaler);
+        ctx.stroke();
+    }
+
+    for (var y = 0; y < h; y += 10) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * scaler);
+        ctx.lineTo(w * scaler, y * scaler);
+        ctx.stroke();
+    }
+
     for (var i = 0; i < board.length; i++) {
         var b = board[i];
+
+
+        if (deathAnimator[i]) {
+            var d = deathAnimator[i];
+            ctx.save();
+            ctx.translate(d.x * scaler, d.y * scaler);
+            ctx.fillStyle = 'rgba(255,255,255,' + (d.t / 10) / 4 + ')';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, d.t * 3, d.t * 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            d.t--;
+            if (d.t <= 0) {
+                deathAnimator[i] = undefined;
+            }
+            ctx.restore();
+        }
+
+
         if (!b) continue;
-        ctx.strokeStyle = b.type == 1 ? "#f00" : '#fff';
-        ctx.fillStyle = b.type == 1 ? "#f00" : '#fff';
+        ctx.strokeStyle = b.type == 1 ? "#f00" : '#0af';
+        ctx.fillStyle = b.type == 1 ? "#f00" : '#0af';
         ctx.save();
         ctx.translate(b.x * scaler, b.y * scaler);
         // ctx.rotate(Math.PI / 4);

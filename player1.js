@@ -1,4 +1,4 @@
-//casual killing machine
+//wander bot
 function player1(p) {
     if (p.bag.uturn > 0) {
         p.bag.uturn--;
