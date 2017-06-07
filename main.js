@@ -317,7 +317,97 @@ function render() {
         ctx.restore();
         counts[b.type]++;
     }
-    console.log(counts);
+
+    //render ui
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.fillStyle = counts[0] < counts[1] ? "rgba(200, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.5)";
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, 20 + 60);
+    ctx.lineTo(w * scaler / 2 - 220, 20 + 60);
+    ctx.lineTo(w * scaler / 2 - 190, 40 + 60);
+    ctx.lineTo(w * scaler / 2 + 190, 40 + 60);
+    ctx.lineTo(w * scaler / 2 + 220, 20 + 60);
+    ctx.lineTo(w * scaler, 20 + 60);
+    ctx.lineTo(w * scaler, 0);
+    ctx.fill();
+
+
+    ctx.translate(w * scaler / 2, 50);
+    ctx.font = "bold 62px Rajdhani"
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(counts[1], 0, 0);
+    ctx.strokeStyle = "#f00";
+
+
+    ctx.translate(- w * scaler / 2 + 50, -10);
+    ctx.font = "32px Rajdhani"
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText('< ' + player2.name + ' >', 0, 0);
+    ctx.strokeStyle = "#f00";
+
+
+
+    if (counts[0] < counts[1]) {
+        ctx.translate(w * scaler - 100, 0);
+        ctx.font = "32px Rajdhani"
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText('LEAD', 0, 0);
+        ctx.strokeStyle = "#f00";
+    }
+
+    ctx.restore();
+
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = counts[0] > counts[1] ? "rgba(0, 140, 255, 0.5)" : "rgba(0, 0, 0, 0.5)";
+    ctx.moveTo(0, h * scaler);
+    ctx.lineTo(0, h * scaler - (20 + 60));
+    ctx.lineTo(w * scaler / 2 - 220, h * scaler - 20 - 60);
+    ctx.lineTo(w * scaler / 2 - 190, h * scaler - 40 - 60);
+    ctx.lineTo(w * scaler / 2 + 190, h * scaler - 40 - 60);
+    ctx.lineTo(w * scaler / 2 + 220, h * scaler - 20 - 60);
+    ctx.lineTo(w * scaler, h * scaler - 20 - 60);
+    ctx.lineTo(w * scaler, h * scaler);
+    ctx.fill();
+
+    ctx.translate(w * scaler / 2, h * scaler - 50);
+    ctx.font = "bold 62px Rajdhani"
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(counts[0], 0, 0);
+    ctx.strokeStyle = "#f00";
+
+    ctx.translate(- w * scaler / 2 + 50, 10);
+    ctx.font = "32px Rajdhani"
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText('< ' + player1.name + ' >', 0, 0);
+    ctx.strokeStyle = "#f00";
+
+
+    if (counts[0] > counts[1]) {
+        ctx.translate(w * scaler - 100, 0);
+        ctx.font = "32px Rajdhani"
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText('LEAD', 0, 0);
+        ctx.strokeStyle = "#f00";
+    }
+    ctx.restore();
+
+
     requestAnimationFrame(render);
 }
 render();
